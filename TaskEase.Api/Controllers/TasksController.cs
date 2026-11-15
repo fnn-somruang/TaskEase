@@ -4,9 +4,11 @@ using TaskEase.Api.Data;
 using TaskEase.Api.DTOs;
 using TaskEase.Api.Models;
 using TaskStatus = TaskEase.Api.Models.TaskStatus;
+using TaskEase.Api.Filters;
 
 namespace TaskEase.Api.Controllers;
 
+[ServiceFilter(typeof(OwnerAuthFilter))]
 [ApiController]
 [Route("api/[controller]")]
 public class TasksController : ControllerBase

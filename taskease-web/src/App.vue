@@ -1,21 +1,25 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { Plus } from 'lucide-vue-next';
-import { useTasks } from './composables/useTasks';
+import { ref, onMounted } from "vue";
+import { Plus } from "lucide-vue-next";
+import { useTasks } from "./composables/useTasks";
 
-import AppSidebar from './components/AppSidebar.vue';
-import StatsGrid from './components/StatsGrid.vue';
-import TaskFilterBar from './components/TaskFilterBar.vue';
-import TaskTable from './components/TaskTable.vue';
-import TaskFormModal from './components/TaskFormModal.vue';
+import AppSidebar from "./components/AppSidebar.vue";
+import StatsGrid from "./components/StatsGrid.vue";
+import TaskFilterBar from "./components/TaskFilterBar.vue";
+import TaskTable from "./components/TaskTable.vue";
+import TaskFormModal from "./components/TaskFormModal.vue";
 
 const {
+  isOwner,
   tasks,
   loading,
   searchQuery,
   filterStatus,
   filterPriority,
   stats,
+  loginAsOwner,
+  logoutOwner,
+  resetGuestDemo,
   fetchTasks,
   saveTask,
   changeTaskStatus,
@@ -40,16 +44,26 @@ const handleFormSubmit = async (formData, editingId) => {
     await saveTask(formData, editingId);
     isModalOpen.value = false;
   } catch (err) {
-    console.error('Failed to save task:', err);
+    console.error("Failed to save task:", err);
   }
 };
 
 const handleDelete = async (id) => {
-  if (!confirm('Are you sure you want to delete this task?')) return;
+  if (!confirm("Are you sure you want to delete this task?")) return;
   try {
     await removeTask(id);
   } catch (err) {
-    console.error('Failed to delete task:', err);
+    console.error("Failed to delete task:", err);
+  }
+};
+
+const handleOwnerLogin = async () => {
+  const pin = prompt("Enter Owner PIN to access your personal workspace:");
+  if (!pin) return;
+  try {
+    await loginAsOwner(pin);
+  } catch {
+    alert("Incorrect Owner PIN");
   }
 };
 
@@ -58,14 +72,23 @@ onMounted(fetchTasks);
 
 <template>
   <div class="min-h-screen bg-slate-50 flex text-slate-800 font-sans">
-    <AppSidebar />
+    <AppSidebar
+      :is-owner="isOwner"
+      @login="handleOwnerLogin"
+      @logout="logoutOwner"
+      @reset-demo="resetGuestDemo"
+    />
 
     <main class="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full">
       <!-- Page Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
+      >
         <div>
           <h1 class="text-2xl font-bold text-slate-900">Task Management</h1>
-          <p class="text-sm text-slate-500 mt-1">Organize tasks, track progress, and manage priorities.</p>
+          <p class="text-sm text-slate-500 mt-1">
+            Organize tasks, track progress, and manage priorities.
+          </p>
         </div>
         <button
           @click="openCreateModal"
