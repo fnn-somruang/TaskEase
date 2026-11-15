@@ -1,0 +1,11 @@
+@TaskEase.Api_HostAddress = http://localhost:5067
+
+GET {{TaskEase.Api_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+
+GET {{TaskEase.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
